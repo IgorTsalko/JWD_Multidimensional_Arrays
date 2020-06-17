@@ -36,6 +36,7 @@ public class MagicSquare {
         int startNumber = start;
 
         for (int i = 0; i < numberOfCells; i++) {
+            // Если значения вышли за пределы матрицы, корректируем их
             if (lineIndex < 0) {
                 lineIndex = order - 1;
             }
@@ -66,7 +67,6 @@ public class MagicSquare {
 
         // Заполняем 4 части матрицы как нечетные магические квадарта
         fillFourOddParts(singlyEvenMagicSquare, order);
-
         // Исправляем неточности в заполнении
         correctSquare(singlyEvenMagicSquare);
 
@@ -141,13 +141,16 @@ public class MagicSquare {
             square[4][1] = subSquareA2;
             square[5][0] = subSquareA3;
         } else if (square.length > 6) {
+            // Создаем копии ячеек для замены между квадратми A и D 
             int[][] subSquareA1 = createSubSquareA1(square);
             int[] subSquareA2 = createSubSquareA2(square, subSquareA1);
             int[][] subSquareA3 = createSubSquareA3(square, subSquareA1);
 
-            replacePartDToPartA(square, subSquareA1);
-            copyPartAToPartD(square, subSquareA1, subSquareA2, subSquareA3);
-
+            // Копируем необходимые ячейки из квадрата D в квадрат A
+            copyCellsOfPartDToPartA(square, subSquareA1);
+            // Копируем необходимые ячейки из копии ячеек квадрата A в квадрат D
+            copyCellsOfPartAToPartD(square, subSquareA1, subSquareA2, subSquareA3);
+            // Согласно условию меняем местами колонки квадратов C и B
             correctLastColumns(square);
         }
     }
@@ -179,7 +182,7 @@ public class MagicSquare {
         return subSquareA3;
     }
 
-    private void replacePartDToPartA(int[][] square, int[][] subSquareA1) {
+    private void copyCellsOfPartDToPartA(int[][] square, int[][] subSquareA1) {
         int half = square.length / 2;
         for (int i = 0, k = i + subSquareA1.length + 1; i < subSquareA1.length; i++, k++) {
             for (int j = 0; j < subSquareA1.length; j++) {
@@ -191,7 +194,7 @@ public class MagicSquare {
                 square[subSquareA1.length], 1, subSquareA1.length);
     }
 
-    private void copyPartAToPartD(int[][] square, int[][] subSquareA1, int[] subSquareA2, int[][] subSquareA3) {
+    private void copyCellsOfPartAToPartD(int[][] square, int[][] subSquareA1, int[] subSquareA2, int[][] subSquareA3) {
         int half = square.length / 2;
         for (int i = 0, k = i + subSquareA1.length + 1; i < subSquareA1.length; i++, k++) {
             for (int j = 0; j < subSquareA1.length; j++) {
@@ -255,32 +258,24 @@ public class MagicSquare {
         int coordinatesIndex = 0;
         int sideOfCornerSquare = order / 4;
 
-        // 4-мя циклами заполняем координаты четыреъ угловых квадартов
+        // Циклами заполняем координаты четырех угловых квадартов
         for (int i = 0; i < sideOfCornerSquare; i++) {
-            for (int j = 0; j < sideOfCornerSquare; j++) {
+            for (int j = 0; j < sideOfCornerSquare; j++, coordinatesIndex++) {
                 coordinates[coordinatesIndex] = new int[]{i, j};
-                coordinatesIndex++;
             }
-        }
 
-        for (int i = 0; i < sideOfCornerSquare; i++) {
-            for (int j = order - sideOfCornerSquare; j < order; j++) {
+            for (int j = order - sideOfCornerSquare; j < order; j++, coordinatesIndex++) {
                 coordinates[coordinatesIndex] = new int[]{i, j};
-                coordinatesIndex++;
             }
         }
 
         for (int i = order - sideOfCornerSquare; i < order; i++) {
-            for (int j = 0; j < sideOfCornerSquare; j++) {
+            for (int j = 0; j < sideOfCornerSquare; j++, coordinatesIndex++) {
                 coordinates[coordinatesIndex] = new int[]{i, j};
-                coordinatesIndex++;
             }
-        }
 
-        for (int i = order - sideOfCornerSquare; i < order; i++) {
-            for (int j = order - sideOfCornerSquare; j < order; j++) {
+            for (int j = order - sideOfCornerSquare; j < order; j++, coordinatesIndex++) {
                 coordinates[coordinatesIndex] = new int[]{i, j};
-                coordinatesIndex++;
             }
         }
 
@@ -300,23 +295,9 @@ public class MagicSquare {
         int coordinatesIndex = 0;
         int sideOfCornerSquare = order / 4;
 
-        // 4-мя циклами заполняем координаты 4-ех оставшихся прямоугольников
+        // Циклами заполняем координаты 4-ех оставшихся прямоугольников
         for (int i = 0; i < sideOfCornerSquare; i++) {
             for (int j = sideOfCornerSquare; j < order - sideOfCornerSquare; j++) {
-                coordinates[coordinatesIndex] = new int[]{i, j};
-                coordinatesIndex++;
-            }
-        }
-
-        for (int i = sideOfCornerSquare; i < order - sideOfCornerSquare; i++) {
-            for (int j = 0; j < sideOfCornerSquare; j++) {
-                coordinates[coordinatesIndex] = new int[]{i, j};
-                coordinatesIndex++;
-            }
-        }
-
-        for (int i = sideOfCornerSquare; i < order - sideOfCornerSquare; i++) {
-            for (int j = order - sideOfCornerSquare; j < order; j++) {
                 coordinates[coordinatesIndex] = new int[]{i, j};
                 coordinatesIndex++;
             }
@@ -329,12 +310,23 @@ public class MagicSquare {
             }
         }
 
+        for (int i = sideOfCornerSquare; i < order - sideOfCornerSquare; i++) {
+            for (int j = 0; j < sideOfCornerSquare; j++) {
+                coordinates[coordinatesIndex] = new int[]{i, j};
+                coordinatesIndex++;
+            }
+
+            for (int j = order - sideOfCornerSquare; j < order; j++) {
+                coordinates[coordinatesIndex] = new int[]{i, j};
+                coordinatesIndex++;
+            }
+        }
+
         return coordinates;
     }
 
     private void fillValuesOfFirstPass(int[][] doublyEvenMagicSquare, int[][] coordinates) {
-        int count = 1;
-        for (int i = 0; i < doublyEvenMagicSquare.length; i++) {
+        for (int i = 0, count = 1; i < doublyEvenMagicSquare.length; i++) {
             for (int j = 0; j < doublyEvenMagicSquare.length; j++) {
                 if (checkCoordinate(i, j, coordinates)) {
                     doublyEvenMagicSquare[i][j] = count;
@@ -356,6 +348,7 @@ public class MagicSquare {
         }
     }
 
+    // Проверяем, необходимо ли ставить значение в эту ячейку
     private boolean checkCoordinate(int i, int j, int[][] coordinates) {
         for (int[] coordinate : coordinates) {
             if (coordinate[0] == i && coordinate[1] == j) {
@@ -377,7 +370,7 @@ public class MagicSquare {
                     .append(sumOfLine)
                     .append("\n");
         }
-        // Добавляем последнюю строку (Вывод сумм каждого столбца)
+        // Добавляем последнюю строку (Вывод сумму каждого столбца)
         square.append(sumOfColumns());
 
         System.out.print(square);
@@ -392,7 +385,7 @@ public class MagicSquare {
         return sum;
     }
 
-    // Считает сумму всех значений в столбце
+    // Считает сумму всех значений в столбцах
     private String sumOfColumns() {
         StringBuilder builder = new StringBuilder(" ");
         builder.append("  | ".repeat(magicSquare.length))
@@ -403,7 +396,7 @@ public class MagicSquare {
             for (int j = 0; j < magicSquare[i].length; j++) {
                 sum += magicSquare[j][i];
             }
-            builder.append(String.format("%2d", sum)).append(" ");
+            builder.append(String.format("%3d", sum)).append(" ");
         }
         return builder.toString();
     }
